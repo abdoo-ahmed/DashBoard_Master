@@ -20,7 +20,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { addUser, getUsers } from '../../Components/supaBase.js';
+import { addUser, getUsers } from '../../supaBase.js';
 
 export default function Table() {
   const theme = useTheme();
