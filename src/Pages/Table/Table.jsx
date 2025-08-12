@@ -24,10 +24,12 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { addUser, getUsers, updateUser } from "../../supaBase.js";
+import { addUser, getUsers, updateUser, searchUserByName, searchUserByAge } from "../../supaBase.js";
+import { useOutletContext } from "react-router-dom";
 
 export default function Table() {
   const theme = useTheme();
+  const { searchQuery } = useOutletContext() ?? { searchQuery: "" };
   const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -49,8 +51,28 @@ export default function Table() {
     fetchData();
   }, []);
 
-  
-
+  // Debounced search
+  const debouncedQuery = useDebounce(searchQuery, 300);
+  useEffect(() => {
+    async function runSearch() {
+      if (!debouncedQuery) {
+        const all = await getUsers();
+        setRows(all);
+        return;
+      }
+      const numeric = /^\d+$/.test(debouncedQuery.trim());
+      if (numeric) {
+        const res = await searchUserByAge(Number(debouncedQuery.trim()));
+        if (!res.error) setRows(res.data);
+        else setRows([]);
+      } else {
+        const res = await searchUserByName(debouncedQuery.trim());
+        if (!res.error) setRows(res.data);
+        else setRows([]);
+      }
+    }
+    runSearch();
+  }, [debouncedQuery]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -370,4 +392,13 @@ export default function Table() {
       </Box>
     </>
   );
+}
+
+function useDebounce(value, delayMs) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(id);
+  }, [value, delayMs]);
+  return debounced;
 }

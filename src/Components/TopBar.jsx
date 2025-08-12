@@ -66,7 +66,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-export default function TopBar({ open  , setMode}) {
+export default function TopBar({ open  , setMode, setSearchQuery}) {
   const theme = useTheme();
   return (
     <AppBar position="fixed" open={open}>
@@ -86,6 +86,7 @@ export default function TopBar({ open  , setMode}) {
           <StyledInputBase
             placeholder="Search…"
             inputProps={{ 'aria-label': 'search' }}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </Search>
 

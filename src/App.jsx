@@ -25,14 +25,17 @@ export default function MiniDrawer() {
 
   const [mode , setMode] = React.useState(localStorage.getItem('currentMode') ? localStorage.getItem('currentMode') : 'light');
   const theme = React.useMemo(()=> createTheme(getDesignTokens(mode)) , [mode]);
+
+  const [searchQuery, setSearchQuery] = React.useState('');
+
   return (
     <ThemeProvider theme ={theme} >
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <TopBar open={open} handleDrawerOpen={handleDrawerOpen} setMode={setMode}/>
+        <TopBar open={open} handleDrawerOpen={handleDrawerOpen} setMode={setMode} setSearchQuery={setSearchQuery}/>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <DrawerHeader />
-          <Outlet/>
+          <Outlet context={{ searchQuery }}/>
         </Box>
       </Box>
     </ThemeProvider>
