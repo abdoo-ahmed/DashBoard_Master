@@ -8,9 +8,6 @@ import TopBar from './Components/TopBar';
 import { getDesignTokens } from './theme';
 import { Outlet } from 'react-router-dom';
 
-
-
-
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -19,19 +16,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-
-
 export default function MiniDrawer() {
-  
   const [open, setOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState(null);
 
   const handleDrawerOpen = () => {
     setOpen(true);
-  };
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
   };
 
   const [mode , setMode] = React.useState(localStorage.getItem('currentMode') ? localStorage.getItem('currentMode') : 'light');
@@ -40,13 +29,12 @@ export default function MiniDrawer() {
     <ThemeProvider theme ={theme} >
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <TopBar open={open} handleDrawerOpen={handleDrawerOpen} setMode={setMode} onSearch={handleSearch}/>
+        <TopBar open={open} handleDrawerOpen={handleDrawerOpen} setMode={setMode}/>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <DrawerHeader />
-          <Outlet context={{ searchQuery }} />
+          <Outlet/>
         </Box>
       </Box>
     </ThemeProvider>
-    
   );
 }

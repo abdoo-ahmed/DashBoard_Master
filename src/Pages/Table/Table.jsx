@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
 
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -29,7 +28,6 @@ import { addUser, getUsers, updateUser } from "../../supaBase.js";
 
 export default function Table() {
   const theme = useTheme();
-  const { searchQuery } = useOutletContext();
   const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -42,40 +40,18 @@ export default function Table() {
     phone: "",
     access: "User",
   });
-  const [filteredRows, setFilteredRows] = useState([]);
+
   useEffect(() => {
     async function fetchData() {
       const data = await getUsers();
       setRows(data);
-      setFilteredRows(data);
     }
     fetchData();
   }, []);
 
-  // وظيفة البحث الذكي
-  const smartSearch = (query, data) => {
-    if (!query || !query.trim()) {
-      return data;
-    }
+  
 
-    const searchTerm = query.toLowerCase().trim();
-    
-    return data.filter(user => {
-      // البحث في الاسم
-      const nameMatch = user.name && user.name.toLowerCase().includes(searchTerm);
-      
-      // البحث في العمر (إذا كان البحث رقم)
-      const ageMatch = !isNaN(searchTerm) && user.age && user.age.toString() === searchTerm;
-      
-      return nameMatch || ageMatch;
-    });
-  };
 
-  // تطبيق البحث عند تغيير searchQuery
-  useEffect(() => {
-    const filtered = smartSearch(searchQuery, rows);
-    setFilteredRows(filtered);
-  }, [searchQuery, rows]);
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
@@ -175,7 +151,9 @@ export default function Table() {
         access: formData.access,
       });
       const updatedUser = Array.isArray(updated) ? updated[0] : updated;
-      setRows((prev) => prev.map((r) => (r.id === updatedUser.id ? updatedUser : r)));
+      setRows((prev) =>
+        prev.map((r) => (r.id === updatedUser.id ? updatedUser : r))
+      );
       handleClose();
     } catch (err) {
       console.error("Failed to update user:", err.message);
@@ -188,9 +166,6 @@ export default function Table() {
       [e.target.name]: e.target.value,
     }));
   };
-
-
-
 
   const columns = [
     {
@@ -315,7 +290,6 @@ export default function Table() {
         </Box>
       </section>
 
-
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{isEdit ? "Edit User" : "Add New User"}</DialogTitle>
         <DialogContent>
@@ -388,18 +362,11 @@ export default function Table() {
         </DialogActions>
       </Dialog>
       <Box style={{ height: 500, width: "98%", mx: "auto" }}>
-        <DataGrid 
-          autoHeight 
-          rows={filteredRows} 
-          columns={columns} 
+        <DataGrid
+          autoHeight
+          rows={rows}
+          columns={columns}
         />
-        {searchQuery && (
-          <Box sx={{ mt: 2, textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              Showing {filteredRows.length} result(s) for "{searchQuery}"
-            </Typography>
-          </Box>
-        )}
       </Box>
     </>
   );
