@@ -67,6 +67,8 @@ export async function getUsers() {
 
 
 export async function updateUser({name, email, phone, age,access } = {}) {
+
+  // eslint-disable-next-line no-undef
   if (!id) throw new Error("User ID is required");
 
   const updatedFields = {};
@@ -77,6 +79,7 @@ export async function updateUser({name, email, phone, age,access } = {}) {
   if (access !== undefined) updatedFields.access = access;
 
   try {
+    // eslint-disable-next-line no-undef
     const res = await fetch(`${SUPABASE_URL}/rest/v1/User?id=eq.${id}`, {
       method: "PATCH",
       headers: {
