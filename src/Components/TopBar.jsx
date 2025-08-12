@@ -84,8 +84,8 @@ export default function TopBar({ open  , setMode, setSearchQuery}) {
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ 'aria-label': 'search' }}
+            placeholder="Search by name or age…"
+            inputProps={{ 'aria-label': 'search', title: 'Search by name or age' }}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </Search>
