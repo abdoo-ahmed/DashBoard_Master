@@ -25,26 +25,13 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import {
-  addUser,
-  getUsers,
-  updateUser,
-  searchUserByName,
-  searchUserByAge,
-  deleteUser, 
-} from "../../supaBase.js";
-import { useOutletContext } from "react-router-dom";
+import { addUser, getUsers } from "../../supaBase.js";
 
 export default function Table() {
   const theme = useTheme();
   const { searchQuery } = useOutletContext() ?? { searchQuery: "" };
   const [rows, setRows] = useState([]);
   const [open, setOpen] = useState(false);
-  const [OpenDeletSnackbar, setOpenDeletSnackbar] = useState(false);
-  const [openAddSnackbar, setOpenAddSnackbar] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
-  const [openEditSnackbar, setOpenEditSnackbar] = useState(false);
-  const [editingRow, setEditingRow] = useState(null);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
@@ -86,14 +73,7 @@ export default function Table() {
   }, [debouncedQuery]);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-    setIsEdit(false);
-    setEditingRow(null);
-    setFormData({ name: "", email: "", age: "", phone: "", access: "User" });
-    setErrors({});
-  };
-
+  const handleClose = () => setOpen(false);
   const handleAdd = async () => {
     const newErrors = {};
 
@@ -140,82 +120,12 @@ export default function Table() {
       console.error("Failed to add user:", err.message);
     }
   };
-
-  const handleEdit = (row) => {
-    setIsEdit(true);
-    setEditingRow(row);
-    
-    setFormData({
-      name: row.name || "",
-      email: row.email || "",
-      age: row.age ?? "",
-      phone: row.phone || "",
-      access: row.access || "User",
-    });
-    setOpen(true);
-    
-  };
-
-  const handleSave = async () => {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    } else if (formData.name.trim().length < 3) {
-      newErrors.name = "Name must be at least 3 characters";
-    }
-    if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Email is invalid";
-    if (isNaN(formData.age) || Number(formData.age) <= 0)
-      newErrors.age = "Enter a valid age";
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone is required";
-    } else if (!/^01[0125][0-9]{8}$/.test(formData.phone)) {
-      newErrors.phone = "Enter a valid Egyptian phone number";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    try {
-      const updated = await updateUser(editingRow.id, {
-        name: formData.name,
-        email: formData.email,
-        age: formData.age,
-        phone: formData.phone,
-        access: formData.access,
-      });
-      const updatedUser = Array.isArray(updated) ? updated[0] : updated;
-      setRows((prev) =>
-        prev.map((r) => (r.id === updatedUser.id ? updatedUser : r))
-      );
-      handleClose();
-      setOpenEditSnackbar(true);
-    } catch (err) {
-      console.error("Failed to update user:", err.message);
-    }
-  };
-
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
-
-  
-const handleDelete = async (id) => {
-  try {
-    await deleteUser(id);
-    setRows((prev) => prev.filter((row) => row.id !== id));
-    setOpenDeletSnackbar(true);
-  } catch (err) {
-    console.error("Failed to delete user:", err.message);
-  }
-};
-
   const columns = [
     { field: "id", headerName: "ID", width: 50, align: "center", headerAlign: "center" },
     { field: "name", headerName: "Name", width: 150, flex: 1, align: "center", headerAlign: "center" },
@@ -295,42 +205,6 @@ const handleDelete = async (id) => {
           </Button>
         </Box>
       </section>
-
-      
-      <Snackbar
-        open={OpenDeletSnackbar}
-        autoHideDuration={2000}
-        onClose={() => setOpenDeletSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert severity="success" sx={{ fontSize: "1rem" }}>
-          Deleted Successfully
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={openAddSnackbar}
-        autoHideDuration={2000}
-        onClose={() => setOpenAddSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert severity="success" sx={{ fontSize: "1rem" }}>
-          Added Successfully
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-      open={openEditSnackbar}
-      autoHideDuration={2000}
-      onClose={() => setOpenEditSnackbar(false)}
-      anchorOrigin={{ vertical: "top", horizontal: "center" }}
-    >
-      <Alert severity="success" sx={{ fontSize: "1rem" }}>
-        Edited Successfully
-      </Alert>
-    </Snackbar>
-
-
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{isEdit ? "Edit User" : "Add New User"}</DialogTitle>
         <DialogContent>
@@ -348,15 +222,17 @@ const handleDelete = async (id) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          {isEdit ? (
-            <Button variant="contained" color="info" onClick={handleSave}>Save</Button>
-          ) : (
-            <Button variant="contained" color="info" onClick={handleAdd}>Add</Button>
-          )}
+          <Button variant="contained" color="info" onClick={handleAdd}>
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
       <Box style={{ height: 500, width: "98%", mx: "auto" }}>
-        <DataGrid autoHeight rows={rows} columns={columns} />
+        <DataGrid
+          autoHeight
+          rows={rows}
+          columns={columns}
+        />
       </Box>
 
     </>
