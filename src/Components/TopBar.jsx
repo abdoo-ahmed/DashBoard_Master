@@ -7,9 +7,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
-
-
-
 const drawerWidth = 240;
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -26,7 +23,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
@@ -70,20 +66,17 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-export default function TopBar({ open  , setMode}) {
-
-  const theme = useTheme()
+export default function TopBar({ open  , setMode, setSearchQuery}) {
+  const theme = useTheme();
   return (
     <AppBar position="fixed" open={open}>
       <Toolbar>
         <Box>
-
           <Avatar
             alt="Logo"
             src="https://cdn-icons-png.flaticon.com/512/6821/6821002.png"
             sx={{ width: 48, height: 48 }}
           />
-
         </Box>
 
         <Search>
@@ -91,38 +84,31 @@ export default function TopBar({ open  , setMode}) {
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ 'aria-label': 'search' }}
+            placeholder="Search by name or age…"
+            inputProps={{ 'aria-label': 'search', title: 'Search by name or age' }}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </Search>
 
+        <Box flexGrow = {1}/>
 
-
-          <Box flexGrow = {1}/>
-
-
-          <Stack direction={"row"}>
-
-            { theme.palette.mode === "light" ? ( <IconButton  onClick={() => {
+        <Stack direction={"row"}>
+          { theme.palette.mode === "light" ? (
+            <IconButton  onClick={() => {
               localStorage.setItem("currentMode" , theme.palette.mode === 'dark' ? 'light': 'dark' )
-               setMode((prevMode => prevMode === 'light' ? 'dark' : 'light')) 
-              }} color="inherit">
+              setMode((prevMode => prevMode === 'light' ? 'dark' : 'light')) 
+            }} color="inherit">
               <LightModeOutlinedIcon />
-            </IconButton>)  : ( <IconButton onClick={() => {
+            </IconButton>
+          )  : (
+            <IconButton onClick={() => {
               localStorage.setItem("currentMode" , theme.palette.mode === 'dark' ? 'light': 'dark' )
-               setMode((prevMode => prevMode === 'light' ? 'dark' : 'light')) 
-              }} color="inherit">
+              setMode((prevMode => prevMode === 'light' ? 'dark' : 'light')) 
+            }} color="inherit">
               <DarkModeOutlinedIcon />
-            </IconButton>) }
-            
-
-
-           
-
-
-          </Stack>
-        
-        
+            </IconButton>
+          ) }
+        </Stack>
       </Toolbar>
     </AppBar>
   );
